@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="890" d:DesignWidth="800">
 	<StackPanel>
-		<CheckBox Content="Test" Margin="3" IsChecked="{Binding SendMarkerOnJoin}" />
+		<CheckBox Content="Send GPS marker on player join" Margin="3" IsChecked="{Binding SendMarkerOnJoin}" />
 
 		<Label Height="20">
 			<LineBreak/>

@@ -1,0 +1,1 @@
+# torchapi-static-marker

@@ -4,26 +4,37 @@ using Sandbox.Game.World;
 using Sandbox.ModAPI;
 using System;
 using System.IO;
+using System.Windows.Controls;
 using Torch;
 using Torch.API;
 using Torch.API.Managers;
+using Torch.API.Plugins;
 using Torch.API.Session;
 using Torch.Session;
 
 namespace StaticMarker
 {
-    public class MarkerPlugin : TorchPluginBase
+    public class MarkerPlugin : TorchPluginBase, IWpfPlugin
     {
-        const string ConfigMarkers = "StaticMarkerEntries.cfg";
+        const string ConfigFile = "StaticMarkerEntries.cfg";
+        const string ConfigMarkersFile = "StaticMarkerEntries.cfg";
 
+        private MarkerControl _control;
         private TorchSessionManager _sessionManager;
         private IMultiplayerManagerBase _multibase;
+        private Persistent<MarkerConfig> _config;
         private MarkerEntriesConfig _entriesConfig;
 
         public static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        public MarkerConfig Config => _config?.Data;
 
         /// <inheritdoc />
-        public override void Init(ITorchBase torch)
+        public UserControl GetControl() => _control ?? (_control = new MarkerControl(this));
+
+        public void Save() => _config.Save();
+
+        /// <inheritdoc />
+        public override void Init(ITorchBase torch) 
         {
             base.Init(torch);
 
@@ -32,6 +43,19 @@ namespace StaticMarker
                 _sessionManager.SessionStateChanged += SessionChanged;
             else
                 Log.Warn("No session manager loaded!");
+
+            var configFile = Path.Combine(StoragePath, ConfigFile);
+            try
+            {
+                _config = Persistent<MarkerConfig>.Load(configFile);
+            }
+            catch (Exception e)
+            {
+                Log.Warn(e);
+            }
+
+            if (_config?.Data == null)
+                _config = new Persistent<MarkerConfig>(configFile, new MarkerConfig());
 
             LoadConfig();
         }
@@ -57,7 +81,7 @@ namespace StaticMarker
         internal bool LoadConfig()
         {
             var success = false;
-            var configFile = Path.Combine(StoragePath, ConfigMarkers);
+            var configFile = Path.Combine(StoragePath, ConfigMarkersFile);
             try
             {
                 _entriesConfig = Persistent<MarkerEntriesConfig>.Load(configFile).Data;
@@ -67,6 +91,10 @@ namespace StaticMarker
             {
                 Log.Warn(e);
             }
+
+            if (_config?.Data == null)
+                _entriesConfig = new Persistent<MarkerEntriesConfig>(configFile, new MarkerEntriesConfig()).Data;
+
             return success;
         }
 
@@ -80,7 +108,8 @@ namespace StaticMarker
                 return;
             }
 
-            SendGPSEntries(idendity);
+            if (Config.SendMarkerOnJoin)
+                SendGPSEntries(idendity);
         }
 
         internal void SendGPSEntries(long identityId)

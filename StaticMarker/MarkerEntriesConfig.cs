@@ -1,14 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using VRage.Game;
 
 namespace StaticMarker
 {
     public class MarkerEntriesConfig
     {
-        public List<MyObjectBuilder_Gps.Entry> Entries = new List<MyObjectBuilder_Gps.Entry>();
+        private List<MyObjectBuilder_Gps.Entry> _entries = new List<MyObjectBuilder_Gps.Entry>();
+        public List<MyObjectBuilder_Gps.Entry> Entries {
+            get => _entries;
+            set {
+                _entries.Clear();
+                _entries.AddRange(value);
+            }
+        }
     }
 }

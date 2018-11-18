@@ -16,7 +16,7 @@ namespace StaticMarker
 {
     public class MarkerPlugin : TorchPluginBase, IWpfPlugin
     {
-        const string ConfigFile = "StaticMarkerEntries.cfg";
+        const string ConfigFile = "StaticMarker.cfg";
         const string ConfigMarkersFile = "StaticMarkerEntries.cfg";
 
         private MarkerControl _control;
